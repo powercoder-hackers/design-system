@@ -1,0 +1,28 @@
+name: Dry Run Publish
+on:
+  push:
+    branches:
+      - main
+      - release/v*
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  changeset-magic:
+    name: Set up Changeset PR or Release Packages
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the Branch which was pushed ('main' or 'release/v*')
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node & pnpm
+        uses: ./.github/actions/setup-pnpm
+
+      - name: Install & build Dependencies
+        run: pnpm bootstrap
+
+      # This will fail the build if something in the publish setup is not correct
+      # before changeset magic is starting to run
+      - name: Test publish step
+        run: pnpm -r publish --dry-run
