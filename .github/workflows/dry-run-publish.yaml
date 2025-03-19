@@ -5,24 +5,19 @@ on:
       - main
       - release/v*
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
-
 jobs:
-  changeset-magic:
-    name: Set up Changeset PR or Release Packages
+  dry-run-publish:
+    name: Publish Verification
     runs-on: ubuntu-latest
     steps:
-      # Checkout the Branch which was pushed ('main' or 'release/v*')
-      - name: Checkout
+      - name: Checkout branch
         uses: actions/checkout@v4
 
       - name: Setup Node & pnpm
         uses: ./.github/actions/setup-pnpm
 
-      - name: Install & build Dependencies
+      - name: Install & Build Dependencies
         run: pnpm bootstrap
 
-      # This will fail the build if something in the publish setup is not correct
-      # before changeset magic is starting to run
-      - name: Test publish step
+      - name: Dry-run publish test
         run: pnpm -r publish --dry-run
